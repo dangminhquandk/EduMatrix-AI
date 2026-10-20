@@ -8,6 +8,7 @@
 [![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-2088FF?logo=githubactions&logoColor=white)](https://github.com/dangminhquandk/EduMatrix-AI/actions)
 [![Curriculum](https://img.shields.io/badge/GDPT%202018-Tin%20Học%206--9-green)](https://moet.gov.vn/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Deploy with Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/deploy?repository=dangminhquandk/EduMatrix-AI&branch=main&mainModule=app.py)
 
 **Sản phẩm số tham dự: "Ngày hội Nhà giáo Sáng tạo với Công nghệ số và Trí tuệ nhân tạo 2026"**  
 *Đơn vị tổ chức: Cục Nhà giáo & Cán bộ quản lý giáo dục (Bộ GD&ĐT) phối hợp cùng Đại học RMIT Việt Nam.*
@@ -81,7 +82,16 @@ Hệ thống đã trải qua đợt kiểm toán toàn diện bởi Lead Archite
 
 ## 🚀 5. Hướng Dẫn Cài Đặt & Vận Hành
 
-### Cách 1: Vận hành Trực tiếp trên Máy cá nhân (Local Environment)
+### Cách 1: Trải nghiệm Trực Tuyến 1-Click (Khuyên dùng cho Giám Khảo & Giáo Viên)
+
+Ứng dụng được thiết kế tương thích hoàn toàn với nền tảng điện toán đám mây **Streamlit Community Cloud**:
+- 👉 **Link khởi tạo nhanh (1-Click Deploy):** [Deploy on Streamlit Community Cloud](https://share.streamlit.io/deploy?repository=dangminhquandk/EduMatrix-AI&branch=main&mainModule=app.py)
+- Giáo viên chỉ cần đăng nhập tài khoản GitHub, bấm nút **Deploy**, hệ thống sẽ tự động cấu hình và cung cấp đường link truy cập công khai miễn phí (ví dụ: `https://edumatrix-ai.streamlit.app`).
+- Để kích hoạt tính năng Gemini 2.5 Flash, chỉ cần điền `GEMINI_API_KEY` vào mục *App Settings > Secrets* hoặc nhập trực tiếp trên thanh menu Sidebar của ứng dụng.
+
+---
+
+### Cách 2: Vận hành Trực tiếp trên Máy cá nhân (Local Environment)
 
 **Yêu cầu:** Python 3.10 trở lên.
 
@@ -106,7 +116,7 @@ streamlit run app.py
 
 ---
 
-### Cách 2: Vận hành bằng Docker & Docker Compose (Khuyên dùng cho Production)
+### Cách 3: Vận hành bằng Docker & Docker Compose (Khuyên dùng cho Tự chủ Hạ tầng)
 
 **Yêu cầu:** Đã cài đặt Docker và Docker Compose.
 

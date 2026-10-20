@@ -111,8 +111,12 @@ with st.sidebar:
     time_minutes = st.number_input("Thời gian làm bài (phút):", min_value=15, max_value=90, value=45, step=15)
     
     st.divider()
-    st.markdown("### 🔑 Tùy chọn Gemini API")
     default_env_key = os.environ.get("GEMINI_API_KEY", "")
+    if not default_env_key and hasattr(st, "secrets"):
+        try:
+            default_env_key = st.secrets.get("GEMINI_API_KEY", "")
+        except Exception:
+            pass
     gemini_key = st.text_input("Gemini API Key (Không bắt buộc):", value=default_env_key, type="password", help="Để trống nếu muốn sử dụng Ngân hàng câu hỏi chuẩn hóa tích hợp sẵn.")
     if not gemini_key:
         st.caption("ℹ️ Đang chạy chế độ **Offline Smart Engine** (Đầy đủ 100% dữ liệu GDPT 2018).")
