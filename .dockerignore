@@ -1,0 +1,30 @@
+# Git
+.git/
+.gitignore
+
+# Virtual Environment & Python Cache
+.venv/
+venv/
+ENV/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Testing & Scratch
+tests/
+scratch/
+.tempmediaStorage/
+*.log
+
+# Documentation not needed inside container image
+Ban_Thuyet_Minh_Sang_Kien.md
+Kich_Ban_Video_Demo.md
+CODE_AUDIT_REPORT.md
+*.pdf
+
+# IDE & OS
+.DS_Store
+.vscode/
+.idea/

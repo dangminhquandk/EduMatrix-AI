@@ -1,0 +1,62 @@
+name: CI/CD Pipeline - EduMatrix AI
+
+on:
+  push:
+    branches:
+      - main
+      - 'refactor/*'
+  pull_request:
+    branches:
+      - main
+      - 'refactor/*'
+
+jobs:
+  test:
+    name: Test & Quality Gate (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Lint with flake8 (Syntax errors & undefined names)
+        run: |
+          # Dừng build nếu phát hiện lỗi cú pháp hoặc biến chưa định nghĩa
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude=.venv,scratch
+          # Cảnh báo style và độ phức tạp
+          flake8 . --count --exit-zero --max-complexity=15 --max-line-length=127 --statistics --exclude=.venv,scratch
+
+      - name: Execute Automated Test Suite
+        run: |
+          python -m unittest discover -s tests -p "test_*.py" -v
+
+      - name: Verify Mathematical Invariants (32 Combinations)
+        run: |
+          python -c '
+          from matrix_engine import calculate_exam_blueprint
+          from curriculum_data import CURRICULUM_DATA
+          for g in [6, 7, 8, 9]:
+              for p in ["Giữa kỳ 1", "Cuối kỳ 1", "Giữa kỳ 2", "Cuối kỳ 2"]:
+                  for tpl in ["mau_1", "mau_2"]:
+                      tops = CURRICULUM_DATA[g]["ky_kiem_tra"][p]
+                      bp = calculate_exam_blueprint(g, p, tops, tpl)
+                      rows = bp["matrix_rows"]
+                      assert abs(sum(r["diem"] for r in rows) - 10.0) < 1e-4, f"Failed at {g} {p} {tpl}"
+          print("All 32 test combinations mathematically verified!")
+          '
