@@ -89,7 +89,7 @@ with st.sidebar:
     """, unsafe_allow_html=True)
     st.markdown("### ⚙️ Cấu hình Khảo thí")
     
-    school_name = st.text_input("Đơn vị / Trường THCS:", value="Trường THCS Nguyễn Du")
+    school_name = st.text_input("Đơn vị / Trường THCS:", value="Trường THCS Tiên Sơn")
     
     grade = st.selectbox(
         "Khối lớp (THCS):",
@@ -104,8 +104,8 @@ with st.sidebar:
     
     template_type = st.radio(
         "Biểu mẫu Ma trận:",
-        options=["mau_2", "mau_1"],
-        format_func=lambda x: "Mẫu 2 (Mới - Bộ GD&ĐT: 4 dạng thức)" if x == "mau_2" else "Mẫu 1 (Truyền thống: 3 dạng thức)"
+        options=["mau_1", "mau_2"],
+        format_func=lambda x: "Mẫu 1 (Cấu trúc trường: TN 6.0đ + Đúng/Sai 1.0đ + Tự luận 3.0đ)" if x == "mau_1" else "Mẫu 2 (Mới - Bộ GD&ĐT: 4 dạng thức)"
     )
     
     time_minutes = st.number_input("Thời gian làm bài (phút):", min_value=15, max_value=90, value=45, step=15)
@@ -133,10 +133,10 @@ grade_info = CURRICULUM_DATA[grade]
 default_topics = grade_info["ky_kiem_tra"].get(period, list(grade_info["chu_de"].keys())[:2])
 
 # Tab điều hướng
-tab1, tab2, tab3 = st.tabs(["1. 🎯 Chọn Phạm vi Chủ đề", "2. 📊 Xem trước Ma trận & Đặc tả", "3. 📝 Tạo & Xuất Bản Word"])
+tab1, tab2, tab3 = st.tabs(["1. 🎯 Chọn Phạm vi Bài học (KNTT)", "2. 📊 Xem trước Ma trận & Đặc tả", "3. 📝 Tạo & Xuất Bản Word"])
 
 with tab1:
-    st.markdown("#### 📌 Chọn các chủ đề kiến thức đưa vào đề kiểm tra:")
+    st.markdown("#### 📌 Bước 1: Chọn các Chủ đề kiến thức đưa vào đề:")
     all_available_topics = list(grade_info["chu_de"].keys())
     
     selected_topics = st.multiselect(
@@ -150,26 +150,43 @@ with tab1:
         st.warning("⚠️ Vui lòng chọn ít nhất 1 chủ đề kiểm tra.")
         st.stop()
         
-    st.markdown("##### Các Đơn vị kiến thức chi tiết sẽ được đưa vào bài thi:")
+    st.markdown("#### 📖 Bước 2: Tích chọn từng bài học đưa vào đề thi (SGK Kết nối tri thức với cuộc sống):")
+    st.caption("💡 Thầy/Cô có thể linh hoạt tích hoặc bỏ chọn từng bài học theo đúng tiến độ thực tế trên lớp:")
+    
+    selected_lessons = []
     for t_key in selected_topics:
         t_data = grade_info["chu_de"][t_key]
-        with st.expander(f"📁 {t_key}: {t_data['ten']} ({len(t_data['noi_dung'])} bài học/đơn vị)", expanded=True):
+        with st.expander(f"📁 {t_key}: {t_data['ten']} ({len(t_data['noi_dung'])} bài học SGK KNTT)", expanded=True):
             for unit_name, yccd_data in t_data["noi_dung"].items():
-                st.markdown(f"**• {unit_name}**")
+                cb_key = f"chk_{grade}_{period}_{t_key}_{unit_name}"
+                is_checked = st.checkbox(
+                    f"**{unit_name}**",
+                    value=True,
+                    key=cb_key
+                )
+                if is_checked:
+                    selected_lessons.append(unit_name)
+                    
                 col_b, col_h, col_v = st.columns(3)
                 with col_b:
-                    st.caption(f"**Nhận biết:** {yccd_data['biet'][0]}")
+                    st.caption(f"🔍 **Nhận biết:** {yccd_data['biet'][0]}")
                 with col_h:
-                    st.caption(f"**Thông hiểu:** {yccd_data['hieu'][0]}")
+                    st.caption(f"💡 **Thông hiểu:** {yccd_data['hieu'][0]}")
                 with col_v:
-                    st.caption(f"**Vận dụng:** {yccd_data['van_dung'][0]}")
+                    st.caption(f"⚡ **Vận dụng:** {yccd_data['van_dung'][0]}")
+                st.markdown("<hr style='margin: 0.2rem 0; border: none; border-top: 1px dashed #E2E8F0;'/>", unsafe_allow_html=True)
 
-# Tính toán blueprint ma trận
+    if not selected_lessons:
+        st.warning("⚠️ Thầy/Cô chưa tích chọn bài học nào. Vui lòng chọn ít nhất 1 bài học để lập ma trận.")
+        st.stop()
+
+# Tính toán blueprint ma trận với danh sách bài học đã chọn
 blueprint = calculate_exam_blueprint(
     grade=grade,
     exam_period=period,
     selected_topic_keys=selected_topics,
-    template_type=template_type
+    template_type=template_type,
+    selected_lessons=selected_lessons
 )
 
 with tab2:

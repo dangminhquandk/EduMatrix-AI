@@ -84,6 +84,34 @@ class TestMatrixEngineHardening(unittest.TestCase):
                 rows = bp["matrix_rows"]
                 self.assertAlmostEqual(sum(r["diem"] for r in rows), 10.0, places=4)
 
+    def test_mau_1_scoring_breakdown(self):
+        """Kiểm tra Mẫu 1 tuân thủ chuẩn xác cấu trúc điểm của trường (TN 6.0đ, Đ/S 1.0đ, TL 3.0đ)."""
+        bp = calculate_exam_blueprint(6, "Giữa kỳ 1", ["Chủ đề A", "Chủ đề B"], "mau_1")
+        summary = bp["summary"]
+        self.assertEqual(summary["so_cau_tn"], 24)
+        self.assertEqual(summary["diem_tn"], 6.0)
+        self.assertEqual(summary["so_cau_ds"], 1)
+        self.assertEqual(summary["diem_ds"], 1.0)
+        self.assertEqual(summary["so_cau_tl"], 3)
+        self.assertEqual(summary["diem_tl"], 3.0)
+        self.assertEqual(summary["tong_diem_biet"], 4.0)
+        self.assertEqual(summary["tong_diem_hieu"], 3.0)
+        self.assertEqual(summary["tong_diem_vd"], 3.0)
+        self.assertEqual(summary["tong_diem"], 10.0)
+
+    def test_granular_lesson_selection(self):
+        """Kiểm tra giáo viên có thể tích chọn riêng từng bài học theo tiến độ giảng dạy thực tế."""
+        grade = 6
+        topic_key = list(CURRICULUM_DATA[grade]["chu_de"].keys())[0]
+        all_lessons = list(CURRICULUM_DATA[grade]["chu_de"][topic_key]["noi_dung"].keys())
+        # Chỉ chọn 2 bài đầu tiên
+        selected = all_lessons[:2]
+        bp = calculate_exam_blueprint(grade, "Giữa kỳ 1", [topic_key], "mau_1", selected_lessons=selected)
+        self.assertEqual(len(bp["matrix_rows"]), 2)
+        self.assertEqual(bp["summary"]["tong_diem"], 10.0)
+        self.assertEqual(sum(r["tn_biet"] for r in bp["matrix_rows"]), 14)
+        self.assertEqual(sum(r["tn_hieu"] for r in bp["matrix_rows"]), 10)
+
 
 class TestDocxExporterHardening(unittest.TestCase):
     """Kiểm tra tính an toàn của đầu vào khi xuất file Word."""
@@ -101,6 +129,18 @@ class TestDocxExporterHardening(unittest.TestCase):
             xml_content = zf.read("word/document.xml")
             root = ET.fromstring(xml_content)
             self.assertTrue(root.tag.endswith("document"))
+
+    def test_docx_tien_son_and_mau_1_specification_table(self):
+        """Kiểm tra xuất file Word Mẫu 1 có đầy đủ bảng 13 cột và branding Trường THCS Tiên Sơn."""
+        bp = calculate_exam_blueprint(7, "Giữa kỳ 1", ["Chủ đề A", "Chủ đề B"], "mau_1")
+        content = generate_exam_content(bp)
+        buf = generate_exam_docx(bp, content, school_name="Trường THCS Tiên Sơn", time_minutes=45)
+        
+        with zipfile.ZipFile(buf, "r") as zf:
+            xml_str = zf.read("word/document.xml").decode("utf-8")
+            self.assertIn("TRƯỜNG THCS TIÊN SƠN", xml_str)
+            self.assertIn("LỜI PHÊ CỦA THẦY / CÔ GIÁO", xml_str)
+            self.assertIn("6,0 điểm", xml_str)
 
 
 if __name__ == "__main__":

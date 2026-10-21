@@ -363,12 +363,11 @@ def _generate_with_internal_engine(blueprint: dict) -> dict:
                 ]
             })
     else:
-        # Mẫu 1: 4 câu (1 Biết 0.5đ, 1 Hiểu 0.5đ, 1 VD 1.5đ, 1 VDC 1.5đ = 4.0đ)
+        # Mẫu 1: 3 câu Tự luận = 3.0đ (1.0đ/câu ở mức độ Vận dụng / Vận dụng cao)
         configs = [
-            {"diem": 0.5, "muc_do": "Nhận biết", "key": "biet", "prompt": "Em hãy trình bày khái niệm hoặc định nghĩa chuẩn mực của:"},
-            {"diem": 0.5, "muc_do": "Thông hiểu", "key": "hieu", "prompt": "Em hãy giải thích ý nghĩa và phân biệt các yếu tố trong:"},
-            {"diem": 1.5, "muc_do": "Vận dụng", "key": "van_dung", "prompt": "Em hãy đề xuất các bước cụ thể để giải quyết tình huống sau:"},
-            {"diem": 1.5, "muc_do": "Vận dụng cao", "key": "van_dung", "prompt": "Em hãy phân tích tính tối ưu và đề xuất cải tiến nâng cao cho:"}
+            {"diem": 1.0, "muc_do": "Vận dụng", "key": "van_dung", "prompt": "Em hãy vận dụng kiến thức bài học để giải quyết tình huống sau:"},
+            {"diem": 1.0, "muc_do": "Vận dụng", "key": "van_dung", "prompt": "Em hãy trình bày các bước thao tác kỹ thuật và giải thích lý do thực hiện đối với:"},
+            {"diem": 1.0, "muc_do": "Vận dụng cao", "key": "van_dung", "prompt": "Em hãy phân tích, so sánh các giải pháp và đề xuất phương án tối ưu cho tình huống:"}
         ]
         for tl_idx, cfg in enumerate(configs, start=1):
             target_unit = matrix_rows[(tl_idx - 1) % len(matrix_rows)]

@@ -66,9 +66,9 @@ def set_table_borders(table, color="B0B0B0", sz="4", val="single"):
     )
     tblPr.append(borders)
 
-def generate_exam_docx(blueprint: dict, exam_content: dict, school_name: str = "TRƯỜNG THCS...", time_minutes: int = 45) -> io.BytesIO:
+def generate_exam_docx(blueprint: dict, exam_content: dict, school_name: str = "TRƯỜNG THCS TIÊN SƠN", time_minutes: int = 45) -> io.BytesIO:
     # Chuẩn hóa đầu vào người dùng
-    school_name = (school_name or "TRƯỜNG THCS...").strip()
+    school_name = (school_name or "TRƯỜNG THCS TIÊN SƠN").strip()
     if len(school_name) > 120:
         school_name = school_name[:120].strip() + "..."
         
@@ -107,6 +107,8 @@ def generate_exam_docx(blueprint: dict, exam_content: dict, school_name: str = "
     summary = blueprint["summary"]
     matrix_rows = blueprint["matrix_rows"]
 
+    dept_name = "PHÒNG GD&ĐT THỊ XÃ VIỆT YÊN" if "TIÊN SƠN" in school_name.upper() else "PHÒNG GD&ĐT QUẬN/HUYỆN"
+
     # ------------------ PHẦN HEADER ĐẦU TRANG ------------------
     header_tbl = doc.add_table(rows=2, cols=2)
     header_tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
@@ -116,7 +118,7 @@ def generate_exam_docx(blueprint: dict, exam_content: dict, school_name: str = "
     cell_tl = header_tbl.cell(0, 0)
     p_tl1 = cell_tl.paragraphs[0]
     p_tl1.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    r1 = p_tl1.add_run(f"PHÒNG GD&ĐT QUẬN/HUYỆN\n{school_name.upper()}")
+    r1 = p_tl1.add_run(f"{dept_name}\n{school_name.upper()}")
     r1.font.name = "Times New Roman"
     r1.font.size = Pt(11)
     r1.font.bold = True
@@ -456,18 +458,18 @@ def generate_exam_docx(blueprint: dict, exam_content: dict, school_name: str = "
         mat_tbl.cell(r_sc, 15).text = f"{tot_cau} câu"
 
         mat_tbl.cell(r_sd, 0).text = "Tổng số điểm"
-        mat_tbl.cell(r_sd, 3).text = "4,0 điểm"
-        mat_tbl.cell(r_sd, 6).text = "2,0 điểm"
-        mat_tbl.cell(r_sd, 9).text = "4,0 điểm"
+        mat_tbl.cell(r_sd, 3).text = "6,0 điểm"
+        mat_tbl.cell(r_sd, 6).text = "1,0 điểm"
+        mat_tbl.cell(r_sd, 9).text = "3,0 điểm"
         mat_tbl.cell(r_sd, 12).text = "4,0 điểm"
         mat_tbl.cell(r_sd, 13).text = "3,0 điểm"
         mat_tbl.cell(r_sd, 14).text = "3,0 điểm"
         mat_tbl.cell(r_sd, 15).text = "10,0 điểm"
 
         mat_tbl.cell(r_tl, 0).text = "Tỉ lệ %"
-        mat_tbl.cell(r_tl, 3).text = "40%"
-        mat_tbl.cell(r_tl, 6).text = "20%"
-        mat_tbl.cell(r_tl, 9).text = "40%"
+        mat_tbl.cell(r_tl, 3).text = "60%"
+        mat_tbl.cell(r_tl, 6).text = "10%"
+        mat_tbl.cell(r_tl, 9).text = "30%"
         mat_tbl.cell(r_tl, 12).text = "40%"
         mat_tbl.cell(r_tl, 13).text = "30%"
         mat_tbl.cell(r_tl, 14).text = "30%"
@@ -508,85 +510,276 @@ def generate_exam_docx(blueprint: dict, exam_content: dict, school_name: str = "
     r_t2.font.size = Pt(13)
     r_t2.font.bold = True
 
-    spec_tbl = doc.add_table(rows=1 + len(matrix_rows) + 1, cols=5)
-    set_table_borders(spec_tbl)
-    set_table_margins(spec_tbl, 80, 80, 100, 100)
-    spec_tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
+    if template_type == "mau_1":
+        # BẢN ĐẶC TẢ MẪU 1 CHUẨN TRƯỜNG THCS (13 cột, tách 3 mức độ Nhận biết / Thông hiểu / Vận dụng cho từng bài học)
+        cols_count = 13
+        total_spec_rows = 4 + (len(matrix_rows) * 3) + 3
+        spec_tbl = doc.add_table(rows=total_spec_rows, cols=cols_count)
+        set_table_borders(spec_tbl)
+        set_table_margins(spec_tbl, 50, 50, 60, 60)
+        spec_tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
 
-    spec_headers = ["TT", "Chủ đề / Chương", "Nội dung kiến thức", "Yêu cầu cần đạt (theo chuẩn GDPT 2018)", "Số câu / Mức độ đánh giá"]
-    for i, h_text in enumerate(spec_headers):
-        c = spec_tbl.cell(0, i)
-        c.text = h_text
-        set_cell_background(c, "EAECEE")
-        for p in c.paragraphs:
-            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            for r in p.runs:
-                r.font.name = "Times New Roman"
-                r.font.size = Pt(9.5)
-                r.font.bold = True
+        # Hàng 0
+        spec_tbl.cell(0, 0).text = "TT"
+        spec_tbl.cell(0, 1).text = "Chương / chủ đề"
+        spec_tbl.cell(0, 2).text = "Nội dung / đơn vị kiến thức"
+        spec_tbl.cell(0, 3).text = "Yêu cầu cần đạt\n(theo 3 mức độ)"
+        spec_tbl.cell(0, 4).text = "Số câu hỏi / ý hỏi ở các mức độ đánh giá"
 
-    for idx, item in enumerate(matrix_rows):
-        row_c = spec_tbl.rows[idx + 1].cells
-        row_c[0].text = str(item["tt"])
-        row_c[1].text = item["chu_de"]
-        row_c[2].text = item["don_vi"]
-        
-        # Render YCCĐ chi tiết 3 mức độ
-        yccd_text = (
-            f"Nhận biết:\n- " + "\n- ".join(item["yccd"].get("biet", ["Khái niệm cơ bản."])) + "\n\n"
-            f"Thông hiểu:\n- " + "\n- ".join(item["yccd"].get("hieu", ["Nguyên lý hoạt động."])) + "\n\n"
-            f"Vận dụng:\n- " + "\n- ".join(item["yccd"].get("van_dung", ["Áp dụng thực tiễn."]))
-        )
-        row_c[3].text = yccd_text
+        # Hàng 1
+        spec_tbl.cell(1, 4).text = "Trắc nghiệm khách quan"
+        spec_tbl.cell(1, 10).text = "Tự luận"
 
-        # Số câu hỏi tổng hợp chuẩn xác theo từng dạng
-        parts = []
-        if item.get("tn_biet") or item.get("tn_hieu"):
-            parts.append(f"• TN nhiều lựa chọn: {item['tn_biet']} Biết, {item['tn_hieu']} Hiểu")
-        if item.get("ds_biet") or item.get("ds_hieu"):
-            parts.append(f"• TN Đúng/Sai: {item['ds_biet']} câu Biết, {item['ds_hieu']} câu Hiểu")
-        if item.get("tln_biet") or item.get("tln_hieu"):
-            parts.append(f"• TN Trả lời ngắn: {item['tln_biet']} Biết, {item['tln_hieu']} Hiểu")
-            
-        tl_parts = []
-        if item.get("tl_biet"):
-            tl_parts.append(f"{item['tl_biet']} Biết")
-        if item.get("tl_hieu"):
-            tl_parts.append(f"{item['tl_hieu']} Hiểu")
-        if item.get("tl_vd"):
-            tl_parts.append(f"{item['tl_vd']} Vận dụng")
-        if tl_parts:
-            parts.append(f"• Tự luận: {', '.join(tl_parts)}")
+        # Hàng 2
+        spec_tbl.cell(2, 4).text = "Nhiều lựa chọn"
+        spec_tbl.cell(2, 7).text = "Đúng / Sai"
+        spec_tbl.cell(2, 10).text = "Tự luận"
 
-        row_c[4].text = "\n".join(parts) if parts else "—"
+        # Hàng 3
+        for sc in [4, 7, 10]:
+            spec_tbl.cell(3, sc).text = "Biết"
+            spec_tbl.cell(3, sc + 1).text = "Hiểu"
+            spec_tbl.cell(3, sc + 2).text = "V.Dụng"
 
-        for c_idx, c in enumerate(row_c):
+        # Gộp ô Header
+        spec_tbl.cell(0, 0).merge(spec_tbl.cell(3, 0))
+        spec_tbl.cell(0, 1).merge(spec_tbl.cell(3, 1))
+        spec_tbl.cell(0, 2).merge(spec_tbl.cell(3, 2))
+        spec_tbl.cell(0, 3).merge(spec_tbl.cell(3, 3))
+        spec_tbl.cell(0, 4).merge(spec_tbl.cell(0, 12))
+
+        spec_tbl.cell(1, 4).merge(spec_tbl.cell(1, 9))
+        spec_tbl.cell(1, 10).merge(spec_tbl.cell(2, 12))
+
+        spec_tbl.cell(2, 4).merge(spec_tbl.cell(2, 6))
+        spec_tbl.cell(2, 7).merge(spec_tbl.cell(2, 9))
+
+        for r_idx in range(4):
+            for c in spec_tbl.rows[r_idx].cells:
+                set_cell_background(c, "EAECEE")
+                c.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+                for p in c.paragraphs:
+                    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                    for r in p.runs:
+                        r.font.name = "Times New Roman"
+                        r.font.size = Pt(8.5)
+                        r.font.bold = True
+
+        # Render dữ liệu bài học (mỗi bài 3 dòng Biết, Hiểu, Vận dụng)
+        curr_row = 4
+        for item in matrix_rows:
+            r_b = curr_row
+            r_h = curr_row + 1
+            r_v = curr_row + 2
+
+            # Gộp cột 0, 1, 2 theo chiều dọc cho bài học
+            spec_tbl.cell(r_b, 0).merge(spec_tbl.cell(r_v, 0))
+            spec_tbl.cell(r_b, 1).merge(spec_tbl.cell(r_v, 1))
+            spec_tbl.cell(r_b, 2).merge(spec_tbl.cell(r_v, 2))
+
+            spec_tbl.cell(r_b, 0).text = str(item["tt"])
+            spec_tbl.cell(r_b, 1).text = item["chu_de"].split(":")[0]
+            spec_tbl.cell(r_b, 2).text = item["don_vi"]
+
+            # 1. Dòng Nhận biết
+            yccd_b = "Nhận biết:\n- " + "\n- ".join(item["yccd"].get("biet", ["Nhận biết khái niệm, quy tắc cơ bản."]))
+            spec_tbl.cell(r_b, 3).text = yccd_b
+            spec_tbl.cell(r_b, 4).text = str(item["tn_biet"]) if item["tn_biet"] else ""
+            spec_tbl.cell(r_b, 5).text = ""
+            spec_tbl.cell(r_b, 6).text = ""
+            spec_tbl.cell(r_b, 7).text = str(item["ds_biet"]) if item.get("ds_biet") else ""
+            spec_tbl.cell(r_b, 8).text = ""
+            spec_tbl.cell(r_b, 9).text = ""
+            spec_tbl.cell(r_b, 10).text = str(item.get("tl_biet", 0)) if item.get("tl_biet") else ""
+            spec_tbl.cell(r_b, 11).text = ""
+            spec_tbl.cell(r_b, 12).text = ""
+
+            # 2. Dòng Thông hiểu
+            yccd_h = "Thông hiểu:\n- " + "\n- ".join(item["yccd"].get("hieu", ["Giải thích, phân biệt, thao tác mẫu."]))
+            spec_tbl.cell(r_h, 3).text = yccd_h
+            spec_tbl.cell(r_h, 4).text = ""
+            spec_tbl.cell(r_h, 5).text = str(item["tn_hieu"]) if item["tn_hieu"] else ""
+            spec_tbl.cell(r_h, 6).text = ""
+            spec_tbl.cell(r_h, 7).text = ""
+            spec_tbl.cell(r_h, 8).text = str(item["ds_hieu"]) if item.get("ds_hieu") else ""
+            spec_tbl.cell(r_h, 9).text = ""
+            spec_tbl.cell(r_h, 10).text = ""
+            spec_tbl.cell(r_h, 11).text = str(item.get("tl_hieu", 0)) if item.get("tl_hieu") else ""
+            spec_tbl.cell(r_h, 12).text = ""
+
+            # 3. Dòng Vận dụng
+            yccd_v = "Vận dụng:\n- " + "\n- ".join(item["yccd"].get("van_dung", ["Giải quyết vấn đề thực tiễn."]))
+            spec_tbl.cell(r_v, 3).text = yccd_v
+            spec_tbl.cell(r_v, 4).text = ""
+            spec_tbl.cell(r_v, 5).text = ""
+            spec_tbl.cell(r_v, 6).text = ""
+            spec_tbl.cell(r_v, 7).text = ""
+            spec_tbl.cell(r_v, 8).text = ""
+            spec_tbl.cell(r_v, 9).text = ""
+            spec_tbl.cell(r_v, 10).text = ""
+            spec_tbl.cell(r_v, 11).text = ""
+            spec_tbl.cell(r_v, 12).text = str(item.get("tl_vd", 0)) if item.get("tl_vd") else ""
+
+            # Format chữ và căn lề cho 3 dòng này
+            for sub_r in [r_b, r_h, r_v]:
+                for c_idx, cell in enumerate(spec_tbl.rows[sub_r].cells):
+                    cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+                    for p in cell.paragraphs:
+                        p.alignment = WD_ALIGN_PARAGRAPH.LEFT if c_idx in [1, 2, 3] else WD_ALIGN_PARAGRAPH.CENTER
+                        for r in p.runs:
+                            r.font.name = "Times New Roman"
+                            r.font.size = Pt(8.5)
+
+            curr_row += 3
+
+        # Dòng Tổng kết đặc tả Mẫu 1
+        r_sc = curr_row
+        r_sd = curr_row + 1
+        r_tl = curr_row + 2
+
+        tot_tn_b = sum(r["tn_biet"] for r in matrix_rows)
+        tot_tn_h = sum(r["tn_hieu"] for r in matrix_rows)
+        tot_ds_b = sum(r["ds_biet"] for r in matrix_rows)
+        tot_ds_h = sum(r["ds_hieu"] for r in matrix_rows)
+        tot_tl_v = sum(r.get("tl_vd", 0) for r in matrix_rows)
+
+        spec_tbl.cell(r_sc, 0).text = "Tổng số câu"
+        spec_tbl.cell(r_sc, 4).text = str(tot_tn_b)
+        spec_tbl.cell(r_sc, 5).text = str(tot_tn_h)
+        spec_tbl.cell(r_sc, 6).text = "0"
+        spec_tbl.cell(r_sc, 7).text = str(tot_ds_b)
+        spec_tbl.cell(r_sc, 8).text = str(tot_ds_h)
+        spec_tbl.cell(r_sc, 9).text = "0"
+        spec_tbl.cell(r_sc, 10).text = "0"
+        spec_tbl.cell(r_sc, 11).text = "0"
+        spec_tbl.cell(r_sc, 12).text = str(tot_tl_v)
+
+        spec_tbl.cell(r_sd, 0).text = "Tổng số điểm"
+        spec_tbl.cell(r_sd, 4).text = "6,0 điểm"
+        spec_tbl.cell(r_sd, 7).text = "1,0 điểm"
+        spec_tbl.cell(r_sd, 10).text = "3,0 điểm"
+
+        spec_tbl.cell(r_tl, 0).text = "Tỉ lệ %"
+        spec_tbl.cell(r_tl, 4).text = "60%"
+        spec_tbl.cell(r_tl, 7).text = "10%"
+        spec_tbl.cell(r_tl, 10).text = "30%"
+
+        # Gộp ô summary đặc tả Mẫu 1
+        spec_tbl.cell(r_sc, 0).merge(spec_tbl.cell(r_sc, 3))
+        spec_tbl.cell(r_sd, 0).merge(spec_tbl.cell(r_sd, 3))
+        spec_tbl.cell(r_tl, 0).merge(spec_tbl.cell(r_tl, 3))
+
+        spec_tbl.cell(r_sd, 4).merge(spec_tbl.cell(r_sd, 6))
+        spec_tbl.cell(r_sd, 7).merge(spec_tbl.cell(r_sd, 9))
+        spec_tbl.cell(r_sd, 10).merge(spec_tbl.cell(r_sd, 12))
+
+        spec_tbl.cell(r_tl, 4).merge(spec_tbl.cell(r_tl, 6))
+        spec_tbl.cell(r_tl, 7).merge(spec_tbl.cell(r_tl, 9))
+        spec_tbl.cell(r_tl, 10).merge(spec_tbl.cell(r_tl, 12))
+
+        for r_offset in range(3):
+            for c in spec_tbl.rows[curr_row + r_offset].cells:
+                set_cell_background(c, "F8F9FA")
+                c.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+                for p in c.paragraphs:
+                    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                    for r in p.runs:
+                        r.font.name = "Times New Roman"
+                        r.font.size = Pt(8.5)
+                        r.font.bold = True
+
+        # Thiết lập độ rộng cột chuẩn A4 Landscape cho bảng 13 cột
+        col_w_13 = [
+            Inches(0.35), Inches(1.1), Inches(1.4), Inches(3.5),
+            Inches(0.45), Inches(0.45), Inches(0.45),
+            Inches(0.45), Inches(0.45), Inches(0.45),
+            Inches(0.45), Inches(0.45), Inches(0.45)
+        ]
+        for row in spec_tbl.rows:
+            for c_idx, w in enumerate(col_w_13):
+                row.cells[c_idx].width = w
+
+    else:
+        # BẢN ĐẶC TẢ MẪU 2 (Bảng 5 cột tổng hợp theo từng dạng thức)
+        spec_tbl = doc.add_table(rows=1 + len(matrix_rows) + 1, cols=5)
+        set_table_borders(spec_tbl)
+        set_table_margins(spec_tbl, 80, 80, 100, 100)
+        spec_tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
+
+        spec_headers = ["TT", "Chủ đề / Chương", "Nội dung kiến thức", "Yêu cầu cần đạt (theo chuẩn GDPT 2018)", "Số câu / Mức độ đánh giá"]
+        for i, h_text in enumerate(spec_headers):
+            c = spec_tbl.cell(0, i)
+            c.text = h_text
+            set_cell_background(c, "EAECEE")
             for p in c.paragraphs:
-                p.alignment = WD_ALIGN_PARAGRAPH.LEFT if c_idx in [1, 2, 3, 4] else WD_ALIGN_PARAGRAPH.CENTER
+                p.alignment = WD_ALIGN_PARAGRAPH.CENTER
                 for r in p.runs:
                     r.font.name = "Times New Roman"
-                    r.font.size = Pt(9)
+                    r.font.size = Pt(9.5)
+                    r.font.bold = True
 
-    # Dòng tổng kết đặc tả (Gộp ô cột 0..2)
-    spec_tbl.cell(-1, 0).merge(spec_tbl.cell(-1, 2))
-    spec_tbl.cell(-1, 0).text = "Tổng"
-    spec_tbl.cell(-1, 3).text = f"Đảm bảo tỷ lệ đánh giá: 40% Nhận biết ({summary['tong_diem_biet']}đ) – 30% Thông hiểu ({summary['tong_diem_hieu']}đ) – 30% Vận dụng ({summary['tong_diem_vd']}đ)"
-    spec_tbl.cell(-1, 4).text = "10.0 điểm\n(100%)"
-    for c in [spec_tbl.cell(-1, 0), spec_tbl.cell(-1, 3), spec_tbl.cell(-1, 4)]:
-        set_cell_background(c, "F8F9FA")
-        c.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
-        for p in c.paragraphs:
-            p.alignment = WD_ALIGN_PARAGRAPH.CENTER if c != spec_tbl.cell(-1, 3) else WD_ALIGN_PARAGRAPH.LEFT
-            for r in p.runs:
-                r.font.name = "Times New Roman"
-                r.font.size = Pt(9.5)
-                r.font.bold = True
+        for idx, item in enumerate(matrix_rows):
+            row_c = spec_tbl.rows[idx + 1].cells
+            row_c[0].text = str(item["tt"])
+            row_c[1].text = item["chu_de"]
+            row_c[2].text = item["don_vi"]
+            
+            # Render YCCĐ chi tiết 3 mức độ
+            yccd_text = (
+                f"Nhận biết:\n- " + "\n- ".join(item["yccd"].get("biet", ["Khái niệm cơ bản."])) + "\n\n"
+                f"Thông hiểu:\n- " + "\n- ".join(item["yccd"].get("hieu", ["Nguyên lý hoạt động."])) + "\n\n"
+                f"Vận dụng:\n- " + "\n- ".join(item["yccd"].get("van_dung", ["Áp dụng thực tiễn."]))
+            )
+            row_c[3].text = yccd_text
 
-    # Thiết lập độ rộng cột chuẩn mực cho bản đặc tả
-    col_widths = [Inches(0.45), Inches(1.5), Inches(1.85), Inches(4.8), Inches(1.8)]
-    for row in spec_tbl.rows:
-        for c_idx, w in enumerate(col_widths):
-            row.cells[c_idx].width = w
+            # Số câu hỏi tổng hợp chuẩn xác theo từng dạng
+            parts = []
+            if item.get("tn_biet") or item.get("tn_hieu"):
+                parts.append(f"• TN nhiều lựa chọn: {item['tn_biet']} Biết, {item['tn_hieu']} Hiểu")
+            if item.get("ds_biet") or item.get("ds_hieu"):
+                parts.append(f"• TN Đúng/Sai: {item['ds_biet']} câu Biết, {item['ds_hieu']} câu Hiểu")
+            if item.get("tln_biet") or item.get("tln_hieu"):
+                parts.append(f"• TN Trả lời ngắn: {item['tln_biet']} Biết, {item['tln_hieu']} Hiểu")
+                
+            tl_parts = []
+            if item.get("tl_biet"):
+                tl_parts.append(f"{item['tl_biet']} Biết")
+            if item.get("tl_hieu"):
+                tl_parts.append(f"{item['tl_hieu']} Hiểu")
+            if item.get("tl_vd"):
+                tl_parts.append(f"{item['tl_vd']} Vận dụng")
+            if tl_parts:
+                parts.append(f"• Tự luận: {', '.join(tl_parts)}")
+
+            row_c[4].text = "\n".join(parts) if parts else "—"
+
+            for c_idx, c in enumerate(row_c):
+                for p in c.paragraphs:
+                    p.alignment = WD_ALIGN_PARAGRAPH.LEFT if c_idx in [1, 2, 3, 4] else WD_ALIGN_PARAGRAPH.CENTER
+                    for r in p.runs:
+                        r.font.name = "Times New Roman"
+                        r.font.size = Pt(9)
+
+        # Dòng tổng kết đặc tả (Gộp ô cột 0..2)
+        spec_tbl.cell(-1, 0).merge(spec_tbl.cell(-1, 2))
+        spec_tbl.cell(-1, 0).text = "Tổng"
+        spec_tbl.cell(-1, 3).text = f"Đảm bảo tỷ lệ đánh giá: 40% Nhận biết ({summary['tong_diem_biet']}đ) – 30% Thông hiểu ({summary['tong_diem_hieu']}đ) – 30% Vận dụng ({summary['tong_diem_vd']}đ)"
+        spec_tbl.cell(-1, 4).text = "10.0 điểm\n(100%)"
+        for c in [spec_tbl.cell(-1, 0), spec_tbl.cell(-1, 3), spec_tbl.cell(-1, 4)]:
+            set_cell_background(c, "F8F9FA")
+            c.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+            for p in c.paragraphs:
+                p.alignment = WD_ALIGN_PARAGRAPH.CENTER if c != spec_tbl.cell(-1, 3) else WD_ALIGN_PARAGRAPH.LEFT
+                for r in p.runs:
+                    r.font.name = "Times New Roman"
+                    r.font.size = Pt(9.5)
+                    r.font.bold = True
+
+        # Thiết lập độ rộng cột chuẩn mực cho bản đặc tả 5 cột
+        col_widths = [Inches(0.45), Inches(1.5), Inches(1.85), Inches(4.8), Inches(1.8)]
+        for row in spec_tbl.rows:
+            for c_idx, w in enumerate(col_widths):
+                row.cells[c_idx].width = w
 
     # ==============================================================
     # 3. ĐỀ KIỂM TRA CHÍNH THỨC (Chuyển sang Khổ dọc - Portrait)
@@ -600,14 +793,83 @@ def generate_exam_docx(blueprint: dict, exam_content: dict, school_name: str = "
     sec_exam.left_margin = Inches(0.79)
     sec_exam.right_margin = Inches(0.79)
 
-    p_ex_head = doc.add_paragraph()
-    p_ex_head.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    r_eh = p_ex_head.add_run(f"III. ĐỀ KIỂM TRA {exam_period.upper()} MÔN {grade_title}\nNĂM HỌC 2026 - 2027\nThời gian làm bài: {time_minutes} phút (Không kể thời gian phát đề)")
-    r_eh.font.name = "Times New Roman"
-    r_eh.font.size = Pt(13)
-    r_eh.font.bold = True
+    # ------------------ TIÊU ĐỀ ĐỀ KIỂM TRA CHUẨN 2 CỘT HÀNH CHÍNH ------------------
+    ex_head_tbl = doc.add_table(rows=1, cols=2)
+    ex_head_tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
+    ex_head_tbl.autofit = False
+    set_table_borders(ex_head_tbl, color="FFFFFF", val="none")
 
-    doc.add_paragraph("Họ và tên thí sinh: ............................................................. Lớp: ............. SBD: ....................")
+    c_left = ex_head_tbl.cell(0, 0)
+    c_left.width = Inches(2.9)
+    p_l = c_left.paragraphs[0]
+    p_l.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    r_dept = p_l.add_run(f"{dept_name}\n{school_name.upper()}\n")
+    r_dept.font.name = "Times New Roman"
+    r_dept.font.size = Pt(10.5)
+    r_dept.font.bold = True
+    r_line = p_l.add_run("-----------------------")
+    r_line.font.name = "Times New Roman"
+    r_line.font.size = Pt(9)
+
+    c_right = ex_head_tbl.cell(0, 1)
+    c_right.width = Inches(3.8)
+    p_r = c_right.paragraphs[0]
+    p_r.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    r_ex = p_r.add_run(f"ĐỀ KIỂM TRA {exam_period.upper()}\nNĂM HỌC 2026 - 2027\nMÔN: {grade_title}\n")
+    r_ex.font.name = "Times New Roman"
+    r_ex.font.size = Pt(11)
+    r_ex.font.bold = True
+    r_t = p_r.add_run(f"Thời gian làm bài: {time_minutes} phút\n(Không kể thời gian phát đề)")
+    r_t.font.name = "Times New Roman"
+    r_t.font.size = Pt(9.5)
+    r_t.font.italic = True
+
+    # Khung thông tin học sinh
+    p_stu = doc.add_paragraph()
+    p_stu.paragraph_format.space_before = Pt(8)
+    p_stu.paragraph_format.space_after = Pt(4)
+    r_stu = p_stu.add_run("Họ và tên học sinh: ................................................................ Lớp: ............. SBD: ..............")
+    r_stu.font.name = "Times New Roman"
+    r_stu.font.size = Pt(10.5)
+
+    # Khung Điểm và Lời phê giáo viên (Chuẩn giấy thi cấp 2)
+    score_tbl = doc.add_table(rows=2, cols=2)
+    score_tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
+    set_table_borders(score_tbl, color="000000", sz="4", val="single")
+    set_table_margins(score_tbl, top=60, bottom=60, left=100, right=100)
+
+    c_s0 = score_tbl.cell(0, 0)
+    c_s0.width = Inches(2.2)
+    p_s0 = c_s0.paragraphs[0]
+    p_s0.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    r_s0 = p_s0.add_run("ĐIỂM")
+    r_s0.font.name = "Times New Roman"
+    r_s0.font.size = Pt(10)
+    r_s0.font.bold = True
+
+    c_s1 = score_tbl.cell(0, 1)
+    c_s1.width = Inches(4.5)
+    p_s1 = c_s1.paragraphs[0]
+    p_s1.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    r_s1 = p_s1.add_run("LỜI PHÊ CỦA THẦY / CÔ GIÁO")
+    r_s1.font.name = "Times New Roman"
+    r_s1.font.size = Pt(10)
+    r_s1.font.bold = True
+
+    # Ô thân để trống chấm điểm
+    c_b0 = score_tbl.cell(1, 0)
+    c_b0.width = Inches(2.2)
+    p_b0 = c_b0.paragraphs[0]
+    p_b0.paragraph_format.space_before = Pt(18)
+    p_b0.paragraph_format.space_after = Pt(18)
+
+    c_b1 = score_tbl.cell(1, 1)
+    c_b1.width = Inches(4.5)
+    p_b1 = c_b1.paragraphs[0]
+    p_b1.paragraph_format.space_before = Pt(18)
+    p_b1.paragraph_format.space_after = Pt(18)
+
+    doc.add_paragraph() # Khoảng cách nhỏ trước Phần I
 
     # PHẦN I
     p_p1 = doc.add_paragraph()
@@ -710,55 +972,58 @@ def generate_exam_docx(blueprint: dict, exam_content: dict, school_name: str = "
 
     ans_items = exam_content.get("phan_I_trac_nghiem", [])
     if ans_items:
-        tbl_ans1 = doc.add_table(rows=2, cols=len(ans_items) + 1)
-        set_table_borders(tbl_ans1)
-        set_table_margins(tbl_ans1, 50, 50, 50, 50)
-        tbl_ans1.alignment = WD_TABLE_ALIGNMENT.CENTER
+        chunk_size = 12
+        for start_idx in range(0, len(ans_items), chunk_size):
+            chunk = ans_items[start_idx : start_idx + chunk_size]
+            tbl_ans1 = doc.add_table(rows=2, cols=len(chunk) + 1)
+            set_table_borders(tbl_ans1)
+            set_table_margins(tbl_ans1, 40, 40, 50, 50)
+            tbl_ans1.alignment = WD_TABLE_ALIGNMENT.CENTER
 
-        cell_q = tbl_ans1.cell(0, 0)
-        cell_q.text = "Câu"
-        set_cell_background(cell_q, "EAECEE")
-        cell_q.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
-        p_q = cell_q.paragraphs[0]
-        p_q.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        p_q.runs[0].font.name = "Times New Roman"
-        p_q.runs[0].font.size = Pt(9.5)
-        p_q.runs[0].font.bold = True
+            cell_q = tbl_ans1.cell(0, 0)
+            cell_q.text = "Câu"
+            set_cell_background(cell_q, "EAECEE")
+            cell_q.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+            p_q = cell_q.paragraphs[0]
+            p_q.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            p_q.runs[0].font.name = "Times New Roman"
+            p_q.runs[0].font.size = Pt(9.5)
+            p_q.runs[0].font.bold = True
 
-        cell_ans = tbl_ans1.cell(1, 0)
-        cell_ans.text = "Đáp án"
-        set_cell_background(cell_ans, "EAECEE")
-        cell_ans.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
-        p_ans = cell_ans.paragraphs[0]
-        p_ans.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        p_ans.runs[0].font.name = "Times New Roman"
-        p_ans.runs[0].font.size = Pt(9.5)
-        p_ans.runs[0].font.bold = True
+            cell_ans = tbl_ans1.cell(1, 0)
+            cell_ans.text = "Đáp án"
+            set_cell_background(cell_ans, "EAECEE")
+            cell_ans.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+            p_ans = cell_ans.paragraphs[0]
+            p_ans.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            p_ans.runs[0].font.name = "Times New Roman"
+            p_ans.runs[0].font.size = Pt(9.5)
+            p_ans.runs[0].font.bold = True
 
-        for idx, it in enumerate(ans_items):
-            c_h = tbl_ans1.cell(0, idx + 1)
-            c_a = tbl_ans1.cell(1, idx + 1)
-            c_h.text = str(it["cau_so"])
-            c_a.text = it["dap_an"]
-            set_cell_background(c_h, "F8F9FA")
-            c_h.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
-            c_a.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
-            
-            p_h = c_h.paragraphs[0]
-            p_h.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            r_h = p_h.runs[0]
-            r_h.font.name = "Times New Roman"
-            r_h.font.size = Pt(9)
-            r_h.font.bold = True
+            for idx, it in enumerate(chunk):
+                c_h = tbl_ans1.cell(0, idx + 1)
+                c_a = tbl_ans1.cell(1, idx + 1)
+                c_h.text = str(it["cau_so"])
+                c_a.text = it["dap_an"]
+                set_cell_background(c_h, "F8F9FA")
+                c_h.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+                c_a.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+                
+                p_h = c_h.paragraphs[0]
+                p_h.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                r_h = p_h.runs[0]
+                r_h.font.name = "Times New Roman"
+                r_h.font.size = Pt(9)
+                r_h.font.bold = True
 
-            p_a = c_a.paragraphs[0]
-            p_a.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            r_a = p_a.runs[0]
-            r_a.font.name = "Times New Roman"
-            r_a.font.size = Pt(10)
-            r_a.font.bold = True
+                p_a = c_a.paragraphs[0]
+                p_a.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                r_a = p_a.runs[0]
+                r_a.font.name = "Times New Roman"
+                r_a.font.size = Pt(10)
+                r_a.font.bold = True
 
-    doc.add_paragraph()
+            doc.add_paragraph()
 
     # 2. Đáp án Phần II (Đúng/Sai)
     p_ans_p2 = doc.add_paragraph()
