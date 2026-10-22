@@ -184,6 +184,17 @@ def _sanitize_and_validate_exam_json(raw_input, blueprint: dict) -> dict:
     return data
 
 
+def _safe_choice(items, fallback: str = "Chuẩn kiến thức kỹ năng môn Tin học.") -> str:
+    """Chọn ngẫu nhiên an toàn một phần tử từ danh sách, chống triệt để lỗi IndexError nếu danh sách rỗng."""
+    if isinstance(items, (list, tuple)) and len(items) > 0:
+        clean = [str(x).strip() for x in items if str(x).strip()]
+        if clean:
+            return random.choice(clean)
+    elif isinstance(items, str) and items.strip():
+        return items.strip()
+    return fallback
+
+
 def _generate_with_internal_engine(blueprint: dict) -> dict:
     """
     Bộ Engine Sư phạm nội bộ sinh câu hỏi bám sát 100% YCCĐ của chương trình GDPT 2018.
@@ -203,7 +214,7 @@ def _generate_with_internal_engine(blueprint: dict) -> dict:
         
         # Sinh câu Biết
         for _ in range(r["tn_biet"]):
-            target_yccd = random.choice(yccd_biet)
+            target_yccd = _safe_choice(yccd_biet, f"Nhận biết khái niệm {don_vi}.")
             correct_text = f"Thể hiện đúng bản chất của {don_vi.lower()} trong môi trường số."
             distractors = [
                 "Chỉ áp dụng trong một số trường hợp thiết bị máy tính đời cũ.",
@@ -230,7 +241,7 @@ def _generate_with_internal_engine(blueprint: dict) -> dict:
             
         # Sinh câu Hiểu
         for _ in range(r["tn_hieu"]):
-            target_yccd = random.choice(yccd_hieu)
+            target_yccd = _safe_choice(yccd_hieu, f"Hiểu rõ bản chất của {don_vi.lower()}.")
             correct_text = f"Để hiểu sâu cần phân biệt rõ bản chất của {don_vi.lower()} với các khái niệm liên quan."
             distractors = [
                 "Mọi thành phần trong máy tính đều có chức năng hoàn toàn giống nhau.",
@@ -262,9 +273,9 @@ def _generate_with_internal_engine(blueprint: dict) -> dict:
         target_unit = matrix_rows[(ds_idx - 1) % len(matrix_rows)]
         don_vi = target_unit["don_vi"]
         chu_de = target_unit["chu_de"]
-        yccd_b = random.choice(target_unit["yccd"].get("biet", ["Khái niệm cơ bản."]))
-        yccd_h = random.choice(target_unit["yccd"].get("hieu", ["Nguyên lý hoạt động."]))
-        yccd_v = random.choice(target_unit["yccd"].get("van_dung", ["Áp dụng thực tế."]))
+        yccd_b = _safe_choice(target_unit["yccd"].get("biet"), f"Khái niệm cơ bản về {don_vi}.")
+        yccd_h = _safe_choice(target_unit["yccd"].get("hieu"), f"Nguyên lý hoạt động của {don_vi}.")
+        yccd_v = _safe_choice(target_unit["yccd"].get("van_dung"), f"Kỹ năng vận dụng {don_vi} vào thực tế.")
         
         phan_II.append({
             "cau_so": ds_idx,
@@ -348,7 +359,7 @@ def _generate_with_internal_engine(blueprint: dict) -> dict:
             target_unit = matrix_rows[-(tl_idx % len(matrix_rows) + 1)]
             don_vi = target_unit["don_vi"]
             chu_de = target_unit["chu_de"]
-            yccd_vd = random.choice(target_unit["yccd"].get("van_dung", ["Giải quyết vấn đề thực tiễn."]))
+            yccd_vd = _safe_choice(target_unit["yccd"].get("van_dung"), f"Giải quyết vấn đề thực tiễn liên quan đến {don_vi}.")
             diem = cfg["diem"]
             phan_IV.append({
                 "cau_so": tl_idx,
@@ -374,7 +385,7 @@ def _generate_with_internal_engine(blueprint: dict) -> dict:
             don_vi = target_unit["don_vi"]
             chu_de = target_unit["chu_de"]
             yccd_list = target_unit["yccd"].get(cfg["key"], ["Chuẩn kiến thức kỹ năng."])
-            yccd_selected = random.choice(yccd_list)
+            yccd_selected = _safe_choice(yccd_list, f"Thực hiện chuẩn kiến thức về {don_vi}.")
             diem = cfg["diem"]
             phan_IV.append({
                 "cau_so": tl_idx,
