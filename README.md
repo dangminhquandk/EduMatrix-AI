@@ -85,8 +85,8 @@ Hệ thống đã trải qua đợt kiểm toán toàn diện bởi Lead Archite
 ### Cách 1: Trải nghiệm Trực Tuyến 1-Click (Khuyên dùng cho Giám Khảo & Giáo Viên)
 
 Ứng dụng được thiết kế tương thích hoàn toàn với nền tảng điện toán đám mây **Streamlit Community Cloud**:
-- 👉 **Link khởi tạo nhanh (1-Click Deploy):** [Deploy on Streamlit Community Cloud](https://share.streamlit.io/deploy?repository=dangminhquandk/EduMatrix-AI&branch=main&mainModule=app.py)
-- Giáo viên chỉ cần đăng nhập tài khoản GitHub, bấm nút **Deploy**, hệ thống sẽ tự động cấu hình và cung cấp đường link truy cập công khai miễn phí (ví dụ: `https://edumatrix-ai.streamlit.app`).
+- 👉 **Link trải nghiệm trực tuyến chính thức:** [https://edumatrix-tienson.streamlit.app](https://edumatrix-tienson.streamlit.app)
+- 👉 **Link khởi tạo nhanh dự phòng (1-Click Deploy):** [Deploy on Streamlit Community Cloud](https://share.streamlit.io/deploy?repository=dangminhquandk/EduMatrix-AI&branch=main&mainModule=app.py)
 - Để kích hoạt tính năng Gemini 2.5 Flash, chỉ cần điền `GEMINI_API_KEY` vào mục *App Settings > Secrets* hoặc nhập trực tiếp trên thanh menu Sidebar của ứng dụng.
 
 ---
