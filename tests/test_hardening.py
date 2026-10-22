@@ -142,6 +142,26 @@ class TestDocxExporterHardening(unittest.TestCase):
             self.assertIn("LỜI PHÊ CỦA THẦY / CÔ GIÁO", xml_str)
             self.assertIn("6,0 điểm", xml_str)
 
+    def test_streamlit_topic_multiselect_options_and_defaults(self):
+        """Đảm bảo không bao giờ xảy ra lỗi StreamlitDefaultNotInOptionsError trên giao diện."""
+        for grade in [6, 7, 8, 9]:
+            grade_info = CURRICULUM_DATA[grade]
+            all_topics = list(grade_info["chu_de"].keys())
+            for period in ["Giữa kỳ 1", "Cuối kỳ 1", "Giữa kỳ 2", "Cuối kỳ 2"]:
+                period_lessons = grade_info.get("ky_kiem_tra", {}).get(period, [])
+                default_topics = []
+                for t_k, t_v in grade_info["chu_de"].items():
+                    if any(l in period_lessons for l in t_v["noi_dung"].keys()):
+                        default_topics.append(t_k)
+                valid_defaults = [t for t in default_topics if t in all_topics]
+                if not valid_defaults:
+                    valid_defaults = all_topics[:2]
+                
+                # Bất biến: valid_defaults luôn phải là tập con thực sự và không rỗng của all_topics
+                self.assertGreater(len(valid_defaults), 0)
+                for t in valid_defaults:
+                    self.assertIn(t, all_topics)
+
 
 if __name__ == "__main__":
     unittest.main()

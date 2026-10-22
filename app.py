@@ -130,20 +130,31 @@ st.markdown('<p class="sub-title">Khóa cứng tỷ lệ chuẩn <b>40% Nhận b
 
 # Lấy dữ liệu khối lớp
 grade_info = CURRICULUM_DATA[grade]
-default_topics = grade_info["ky_kiem_tra"].get(period, list(grade_info["chu_de"].keys())[:2])
+
+# Xác định danh sách bài học và chủ đề mặc định cho kỳ kiểm tra
+period_lessons = grade_info.get("ky_kiem_tra", {}).get(period, [])
+default_topics = []
+for t_k, t_v in grade_info["chu_de"].items():
+    if any(lesson in period_lessons for lesson in t_v["noi_dung"].keys()):
+        default_topics.append(t_k)
+
+all_available_topics = list(grade_info["chu_de"].keys())
+valid_default_topics = [t for t in default_topics if t in all_available_topics]
+if not valid_default_topics:
+    valid_default_topics = all_available_topics[:2]
 
 # Tab điều hướng
 tab1, tab2, tab3 = st.tabs(["1. 🎯 Chọn Phạm vi Bài học (KNTT)", "2. 📊 Xem trước Ma trận & Đặc tả", "3. 📝 Tạo & Xuất Bản Word"])
 
 with tab1:
     st.markdown("#### 📌 Bước 1: Chọn các Chủ đề kiến thức đưa vào đề:")
-    all_available_topics = list(grade_info["chu_de"].keys())
     
     selected_topics = st.multiselect(
         "Danh sách Chủ đề (Chương trình Tin học GDPT 2018):",
         options=all_available_topics,
-        default=default_topics,
-        format_func=lambda k: f"{k}: {grade_info['chu_de'][k]['ten']}"
+        default=valid_default_topics,
+        format_func=lambda k: f"{k}: {grade_info['chu_de'][k]['ten']}",
+        key=f"sel_topics_{grade}_{period}"
     )
     
     if not selected_topics:
@@ -159,9 +170,10 @@ with tab1:
         with st.expander(f"📁 {t_key}: {t_data['ten']} ({len(t_data['noi_dung'])} bài học SGK KNTT)", expanded=True):
             for unit_name, yccd_data in t_data["noi_dung"].items():
                 cb_key = f"chk_{grade}_{period}_{t_key}_{unit_name}"
+                is_default = (unit_name in period_lessons) if period_lessons else True
                 is_checked = st.checkbox(
                     f"**{unit_name}**",
-                    value=True,
+                    value=is_default,
                     key=cb_key
                 )
                 if is_checked:
