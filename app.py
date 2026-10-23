@@ -73,6 +73,32 @@ st.markdown("""
         background-color: #2C5282;
         color: white;
     }
+    
+    /* Ẩn hoàn toàn Toolbar, Footer, Header và Badge tác giả Streamlit Cloud */
+    #MainMenu {visibility: hidden !important; display: none !important;}
+    header {visibility: hidden !important; display: none !important;}
+    footer {visibility: hidden !important; display: none !important;}
+    div[data-testid="stToolbar"] {display: none !important;}
+    div[data-testid="stDecoration"] {display: none !important;}
+    div[data-testid="stStatusWidget"] {visibility: hidden !important;}
+    div[data-testid="stHeader"] {display: none !important;}
+    div[data-testid="stManageAppButton"] {display: none !important;}
+    
+    /* Ẩn triệt để viewer badge và profile popover của Streamlit Cloud */
+    .viewerBadge_container__1QSob,
+    .styles_viewerBadge__1yB5_,
+    .viewerBadge_link__1S137,
+    .viewerBadge_text__1JaDK,
+    div[class*="viewerBadge"],
+    div[class*="ViewerBadge"],
+    div[class*="ProfileModal"],
+    div[class*="profileCard"],
+    div[class*="ProfileCard"],
+    div[class*="profile_container"],
+    div[data-testid="stActionButtonIcon"] {
+        display: none !important;
+        visibility: hidden !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 

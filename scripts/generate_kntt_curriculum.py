@@ -977,8 +977,9 @@ kntt_data = {
 }
 
 # Convert string keys to int keys in code
-import pprint
+import json
 
+json_str = json.dumps(kntt_data, ensure_ascii=False, indent=2)
 content = '''"""
 Dữ liệu chuẩn hóa Chương trình Giáo dục Phổ thông 2018 môn Tin học cấp THCS (Lớp 6, 7, 8, 9).
 Bộ sách giáo khoa: KẾT NỐI TRI THỨC VỚI CUỘC SỐNG (NXB Giáo dục Việt Nam).
@@ -987,18 +988,16 @@ Bộ sách giáo khoa: KẾT NỐI TRI THỨC VỚI CUỘC SỐNG (NXB Giáo d�
 - Hiểu (Thông hiểu)
 - Vận dụng (Vận dụng & Vận dụng cao)
 """
+import json
 
-CURRICULUM_DATA = ''' + pprint.pformat(kntt_data, indent=4, width=120) + "\n"
+_RAW = json.loads(r"""''' + json_str + '''""")
 
-# Add string keys as aliases so CURRICULUM_DATA[6] and CURRICULUM_DATA['6'] both work
-content += '''
+CURRICULUM_DATA = {int(k): v for k, v in _RAW.items()}
 for _k in list(CURRICULUM_DATA.keys()):
-    if isinstance(_k, int):
-        CURRICULUM_DATA[str(_k)] = CURRICULUM_DATA[_k]
+    CURRICULUM_DATA[str(_k)] = CURRICULUM_DATA[_k]
 '''
 
 with open("curriculum_data.py", "w", encoding="utf-8") as f:
     f.write(content)
 
-print("curriculum_data.py updated successfully with 100% KNTT lessons!")
-
+print("curriculum_data.py updated cleanly and successfully!")

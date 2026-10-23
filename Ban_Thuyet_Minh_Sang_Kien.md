@@ -1,11 +1,11 @@
 # BẢN THUYẾT MINH GIẢI PHÁP SÁNG KIẾN ỨNG DỤNG AI TRONG GIÁO DỤC
 
-**TÊN SÁNG KIẾN:****EDUMATRIX AI – TRỢ LÝ SƯ PHẠM SỐ TỰ ĐỘNG HÓA THIẾT LẬP MA TRẬN, BẢN ĐẶC TẢ VÀ ĐỀ KIỂM TRA ĐỊNH KỲ MÔN TIN HỌC THCS THEO CHƯƠNG TRÌNH GDPT 2018**
+TÊN SÁNG KIẾN: **EDUMATRIX AI – TRỢ LÝ SƯ PHẠM SỐ TỰ ĐỘNG HÓA THIẾT LẬP MA TRẬN, BẢN ĐẶC TẢ VÀ ĐỀ KIỂM TRA ĐỊNH KỲ MÔN TIN HỌC THCS THEO CHƯƠNG TRÌNH GDPT 2018**
 
 * **Hạng mục tham gia:** Bảng B – Giáo viên khối Trung học Cơ sở
 * **Cuộc thi:** Ngày hội Nhà giáo Sáng tạo với Công nghệ số và Trí tuệ nhân tạo năm 2026
 * **Đơn vị phối hợp tổ chức:** Cục Nhà giáo và Cán bộ Quản lý Giáo dục (Bộ GD&ĐT) & Đại học RMIT Việt Nam
-* **Tác giả / Nhóm tác giả:** Giáo viên bộ môn Tin học THCS
+* **Tác giả:** Giáo viên bộ môn Tin học THCS
 
 ---
 
@@ -35,7 +35,7 @@ Xuất phát từ thực tiễn trên, việc phát triển một công cụ sư
 * **Mục tiêu tối ưu hóa:** Giảm thời gian chuẩn bị hồ sơ khảo thí từ 10 tiếng xuống còn **dưới 5 phút**, triệt tiêu toàn bộ sai sót tính toán số học.
 * **Mục tiêu trải nghiệm:** Thiết kế giao diện thân thiện, tinh giản tối đa (Zero-friction) để ngay cả giáo viên lớn tuổi, không rành công nghệ cũng có thể sử dụng thành thạo ngay lần đầu tiên tiếp cận.
 
-### 2.2. Điểm mới và Tính sáng tạo đột phá: Kiến trúc Lai 
+### 2.2. Điểm mới và Tính sáng tạo đột phá: Kiến trúc Lai
 
 Khác biệt hoàn toàn với việc chỉ dùng "prompt" văn bản đơn thuần, **EduMatrix AI** tiên phong áp dụng mô hình **Kiến trúc Lai**:
 
@@ -62,7 +62,6 @@ Khác biệt hoàn toàn với việc chỉ dùng "prompt" văn bản đơn thu�
 * **Môi trường triển khai:** Triển khai trực tuyến trên hạ tầng đám mây Streamlit Community Cloud (miễn phí, giáo viên chỉ cần bấm vào link web trên trình duyệt điện thoại hoặc máy tính).
 
 ### 3.2. Quy trình thao tác 3 bước của giáo viên
-
 
 1. **Bước 1:** Chọn Khối (6-9) & Đợt kiểm tra
 2. **Bước 2:** Chọn Biểu mẫu Ma trận (Mẫu 1 hoặc Mẫu 2)

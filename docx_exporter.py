@@ -107,7 +107,7 @@ def generate_exam_docx(blueprint: dict, exam_content: dict, school_name: str = "
     summary = blueprint["summary"]
     matrix_rows = blueprint["matrix_rows"]
 
-    dept_name = "PHÒNG GD&ĐT THỊ XÃ VIỆT YÊN" if "TIÊN SƠN" in school_name.upper() else "PHÒNG GD&ĐT QUẬN/HUYỆN"
+    dept_name = "UBND PHƯỜNG TIÊN SƠN" if "TIÊN SƠN" in school_name.upper() else "PHÒNG GD&ĐT QUẬN/HUYỆN"
 
     # ------------------ PHẦN HEADER ĐẦU TRANG ------------------
     header_tbl = doc.add_table(rows=2, cols=2)
