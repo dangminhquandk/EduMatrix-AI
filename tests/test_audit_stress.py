@@ -8,6 +8,7 @@ Kiểm tra toàn bộ 4 trục yêu cầu:
 """
 
 import unittest
+import os
 import zipfile
 import xml.etree.ElementTree as ET
 import re
@@ -118,7 +119,9 @@ class TestStreamlitAppTestCrossInteractions(unittest.TestCase):
 
     def test_rapid_cross_selection_and_generation(self):
         """Mô phỏng: Lớp 6 Giữa kỳ 1 -> Lớp 9 Cuối kỳ 2 -> Lớp 7 Giữa kỳ 1 -> Bấm tạo đề."""
-        at = AppTest.from_file("app.py")
+        root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        app_file = os.path.join(root_dir, "app.py")
+        at = AppTest.from_file(app_file)
         at.run()
         self.assertEqual(len(at.exception), 0)
 
